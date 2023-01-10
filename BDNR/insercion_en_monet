@@ -1,0 +1,35 @@
+
+
+#Se copia el archivo al contenedor de monet
+docker cp superheroes_monetdb_prueba.csv monetdb:/
+
+#Ingresamos al shell de monet
+docker exec -it monetdb /bin/bash
+
+#Creamos la base de datos superheroes
+monetdb create -p monetdb superheroes
+mclient -u monetdb -d superheroes
+
+#Password: monetdb
+#Creación de esquema y usuario
+CREATE USER "superheroes" WITH PASSWORD 'superheroes' NAME 'SuperheroDB' SCHEMA "sys";
+CREATE SCHEMA "superheroes" AUTHORIZATION "superheroes";
+ALTER USER "superheroes" SET SCHEMA "superheroes";
+
+#Creación de tabla 
+CREATE TABLE marvel_superheroes(
+id int,
+name varchar(500),
+description varchar(5000),
+comics_available int,
+comics_items varchar(5000),
+series_available int,
+series_items varchar(5000),
+stories_available int,
+stories_items varchar(5000),
+events_available int,
+events_items varchar(5000));
+
+#Inserción de datos a la tabla
+copy offset 2 into marvel_superheroes from '/superheroes_monetdb_prueba.csv' on client using delimiters ',',E'\n',E'\"' null as '';
+

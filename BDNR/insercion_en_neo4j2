@@ -1,0 +1,81 @@
+#in cypher-shell
+#creating nodes
+LOAD CSV WITH HEADERS FROM 'file:///superhero.csv' AS row
+FIELDTERMINATOR '\t'
+CREATE (n:Superhero)
+SET n = row
+
+LOAD CSV WITH HEADERS FROM 'file:///serie.csv' AS row
+FIELDTERMINATOR '\t'
+CREATE (n:Serie)
+SET n = row
+
+LOAD CSV WITH HEADERS FROM 'file:///story.csv' AS row
+FIELDTERMINATOR '\t'
+CREATE (n:Story)
+SET n = row
+
+LOAD CSV WITH HEADERS FROM 'file:///comic.csv' AS row
+FIELDTERMINATOR '\t'
+CREATE (n:Comic)
+SET n = row
+
+LOAD CSV WITH HEADERS FROM 'file:///event.csv' AS row
+FIELDTERMINATOR '\t'
+CREATE (n:Event)
+SET n = row
+
+
+#creating relations
+MATCH (s:Superhero),(se:Serie)
+WHERE s.id = se.id
+CREATE (se)-[:SERIE_OF]->(s)
+
+MATCH (s:Superhero),(st:Story)
+WHERE s.id = st.id
+CREATE (st)-[:STORY_OF]->(s)
+
+MATCH (s:Superhero),(c:Comic)
+WHERE s.id = c.id
+CREATE (c)-[:COMIC_OF]->(s)
+
+MATCH (s:Superhero),(e:Event)
+WHERE s.id = e.id
+CREATE (e)-[:EVENT_OF]->(s)
+
+
+MATCH (s:Superhero),(c:Comic)
+WHERE s.id = c.id
+CREATE (s)-[:HERO_IN]->(c)
+
+MATCH (s:Superhero),(e:Event)
+WHERE s.id = e.id
+CREATE (s)-[:HERO_IN]->(e)
+
+MATCH (s:Superhero),(st:Story)
+WHERE s.id = st.id
+CREATE (s)-[:HERO_IN]->(st)
+
+MATCH (s:Superhero),(se:Serie)
+WHERE s.id = se.id
+CREATE (s)-[:HERO_IN]->(se)
+
+
+
+#queries
+#¿a cuáles eventos asisten los superhéroes de una determinada serie?
+MATCH (se:Serie)-->(:Superhero)-->(e:Event)
+RETURN se.name as serieName, collect(distinct e.name)
+
+
+#¿super héroe con más comics?
+MATCH (s:Superhero)-->(c:Comic)
+WITH collect (DISTINCT c.name) AS comics, s.name as name, count(*) as cont
+RETURN name, cont
+ORDER BY cont desc
+
+#¿Qué evento junta más super héroes?
+MATCH (e:Event)-->(s:Superhero)
+WITH collect (DISTINCT s.name) AS heroes, e.name as event_name, count(*) as cont
+RETURN event_name, cont
+ORDER BY cont desc

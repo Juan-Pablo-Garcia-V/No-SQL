@@ -1,0 +1,5 @@
+mv superhero.csv /var/lib/neo4j/import
+mv comic.csv /var/lib/neo4j/import
+mv story.csv /var/lib/neo4j/import
+mv event.csv /var/lib/neo4j/import
+mv serie.csv /var/lib/neo4j/import
